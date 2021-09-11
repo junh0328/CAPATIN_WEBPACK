@@ -1,4 +1,5 @@
 var path = require("path");
+var MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   mode: "none", // production, development, none >> 배포 시에는 production으로 설정해야 한다
@@ -11,7 +12,7 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        use: [{ loader: MiniCssExtractPlugin.loader }, "css-loader"],
       },
       // 만든 바벨 로더 예시
       // {
@@ -20,4 +21,5 @@ module.exports = {
       // },
     ],
   },
+  plugins: [new MiniCssExtractPlugin()],
 };

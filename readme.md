@@ -709,7 +709,7 @@ module.exports = {
 };
 ```
 
-3. 🔥[그 밖의 옵션 보기](https://joshua1988.github.io/webpack-guide/concepts/output.html#output-%ED%8C%8C%EC%9D%BC-%EC%9D%B4%EB%A6%84-%EC%98%B5%EC%85%98)
+3. 🔥 [그 밖의 옵션 보기](https://joshua1988.github.io/webpack-guide/concepts/output.html#output-%ED%8C%8C%EC%9D%BC-%EC%9D%B4%EB%A6%84-%EC%98%B5%EC%85%98)
 
 ### loader
 
@@ -784,5 +784,43 @@ module.exports = {
 ```
 
 ### plugin
+
+우리가 설정한 output인 bundle.js에 css 파일을 같이 번들링하는 것이 아닌 별도의 css 파일로 만들어주기 위해서는 플러그인을 사용할 필요가 있다
+
+<img src="./images/plugin1.png">
+
+해당 적용이 완료된 후에 빌드를 하면 다음과 같이 번들링 시에 css 파일이 별도로 분리된 것을 볼 수 있다
+
+<img src="./images/plugin2.png">
+
+<b>플러그인(plugin)</b>은 웹팩의 기본적인 동작에 추가적인 기능을 제공하는 속성입니다.
+
+로더랑 비교하면 로더는 파일을 해석하고 변환하는 과정에 관여하는 반면, 플러그인은 해당 결과물의 형태를 바꾸는 역할을 한다고 보면 됩니다.
+
+플러그인은 아래와 같이 선언합니다.
+
+```js
+// webpack.config.js
+module.exports = {
+  plugins: [],
+};
+```
+
+플러그인의 배열에는 생성자 함수로 생성한 객체 인스턴스만 추가될 수 있습니다.
+
+```js
+// webpack.config.js
+var webpack = require("webpack");
+var HtmlWebpackPlugin = require("html-webpack-plugin");
+
+module.exports = {
+  plugins: [new HtmlWebpackPlugin(), new webpack.ProgressPlugin()],
+};
+```
+
+> 해당 플러그인을 require로 사용하기 위해서는 npm 을 통해 사전에 라이브러리를 다운받는 과정이 필요하겠죠?
+
+- 🔥 [많은 로더 찾아보기](https://webpack.js.org/loaders/)
+- 🔥 [많은 플러그인 찾아보기](https://webpack.js.org/plugins/)
 
 ## 웹팩 데브 서버
