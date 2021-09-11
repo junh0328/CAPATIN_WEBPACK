@@ -593,4 +593,196 @@ console.log(square(3)); // 9
 
 ## 웹팩의 주요 속성 4가지
 
+웹팩의 빌드(파일 변환) 과정을 이해하기 위해서는 아래 4가지 주요 속성에 대해서 알고 있어야 합니다.
+
+- entry
+- output
+- loader
+- plugin
+
+### entry
+
+<b>entry</b> 속성은 웹팩에서 웹 자원을 변환하기 위해 필요한 최초 진입점이자 자바스크립트 파일 경로입니다.
+빌드를 할 대상 파일의 위치라고 볼 수 있습니다
+
+```js
+// webpack.config.js
+module.exports = {
+  entry: "./src/index.js",
+};
+```
+
+위 코드는 웹팩을 실행했을 때 src 폴더 밑의 index.js 을 대상으로 웹팩이 빌드를 수행하는 코드입니다.
+
+<b>entry</b> 속성에 지정된 파일에는 웹 애플리케이션의 전반적인 구조와 내용이 담겨져 있어야 합니다. 웹팩이 해당 파일을 가지고 웹 애플리케이션에서 사용되는 모듈들의 연관 관계를 이해하고 분석하기 때문에 애플리케이션을 동작시킬 수 있는 내용들이 담겨져 있어야 합니다.
+
+```js
+// index.js
+import LoginView from "./LoginView.js";
+import HomeView from "./HomeView.js";
+import PostView from "./PostView.js";
+
+function initApp() {
+  LoginView.init();
+  HomeView.init();
+  PostView.init();
+}
+
+initApp();
+```
+
+싱글 페이지 애플리케이션으로 작성된 index.js를 예로 들어보겠습니다. 3개의 컴포넌트를 index.js에 불러와서 실행을 하고있는 구조입니다.
+
+사용자의 로그인 화면, 로그인 후 진입하는 메인 화면, 그리고 게시글을 작성하는 화면 등 웹 서비스에 필요한 화면들이 모두 index.js 파일에서 불려져 사용되고 있기 때문에 웹팩을 실행하면 해당 파일들의 내용까지 해석하여 파일을 빌드해줄 것입니다.
+
+<img src="./images/webpack-entry.png" />
+
+### options
+
+하지만 entry의 경우 엔트리 포인트가 1개가 될 수도 있지만 아래와 같이 여러 개가 될 수도 있습니다.
+
+```
+entry: {
+  login: './src/LoginView.js',
+  main: './src/MainView.js'
+}
+```
+
+위와 같이 엔트리 포인트를 분리하는 경우는 싱글 페이지 애플리케이션이 아닌 특정 페이지로 진입했을 때 서버에서 해당 정보를 내려주는 형태의 멀티 페이지 애플리케이션에 적합합니다.
+
+### output
+
+<b>output</b> 속성은 웹팩을 돌리고 난 결과물의 파일 경로를 의미합니다.
+
+```js
+// webpack.config.js
+module.exports = {
+  output: {
+    filename: "bundle.js",
+  },
+};
+```
+
+앞에서 배운 entry 속성과는 다르게 객체 형태로 옵션들을 추가해야 합니다.
+
+최소한 <b>filename</b>은 지정해줘야 하며 일반적으로 아래와 같이 path 속성을 함께 정의합니다.
+
+```js
+// webpack.config.js
+var path = require("path");
+
+module.exports = {
+  output: {
+    filename: "bundle.js",
+    path: path.resolve(__dirname, "./dist"),
+  },
+};
+```
+
+- filename 속성은 웹팩으로 빌드(번들링)한 파일의 이름을 의미합니다.
+- path 속성은 해당 파일의 경로를 의미합니다.
+- path 속성에서 사용된 path.resolve() 코드는 인자로 넘어온 경로들을 조합하여 유효한 파일 경로를 만들어주는 Node.js API입니다.
+
+따라서 dist 라는 폴더 안에 있는 bundle.js라는 파일 이름으로 엔트리에 들어온 파일을 빌드(번들링)하여 결과물로 가져올 것입니다.
+
+### options
+
+앞에서 살펴본 filename 속성에 여러 가지 옵션을 넣을 수 있습니다.
+
+1. 결과 파일 이름에 entry 속성을 포함하는 옵션
+
+```js
+module.exports = {
+  output: {
+    filename: "[name].bundle.js",
+  },
+};
+```
+
+2. 결과 파일 이름에 웹팩 내부적으로 사용하는 모듈 ID를 포함하는 옵션
+
+```js
+module.exports = {
+  output: {
+    filename: "[id].bundle.js",
+  },
+};
+```
+
+3. 🔥[그 밖의 옵션 보기](https://joshua1988.github.io/webpack-guide/concepts/output.html#output-%ED%8C%8C%EC%9D%BC-%EC%9D%B4%EB%A6%84-%EC%98%B5%EC%85%98)
+
+### loader
+
+로더(Loader)는 웹팩이 웹 애플리케이션을 해석할 때 자바스크립트 파일이 아닌 웹 자원(HTML, CSS, Images, 폰트 등)들을 빌드 시에, 자바스크립트의 output(산출물) 파일에 포함될 수 있도록 도와주는 속성입니다.
+
+```js
+// webpack.config.js
+module.exports = {
+  module: {
+    rules: [],
+  },
+};
+```
+
+엔트리나 아웃풋 속성과는 다르게 <b>module</b>라는 이름을 사용합니다.
+
+#### 🔥 로더가 없는 경우
+
+로더는 앞서 말한대로 js 이외 형식의 파일들을 빌드할 때 추가하는 속성이라고 볼 수 있다.
+
+만약 js 파일 내에 css 파일이 import 된 상황에서 loader가 없다면 어떻게 될까?
+
+빌드가 제대로 되는 지 확인해보자
+
+```js
+📁 index.js
+
+import "./base.css";
+```
+
+빌드를 한다면 다음과 같은 에러를 볼 수 있을 것이다.
+
+<img src="./images/nonLoader.png">
+
+빌드 시에, 엔트리로 설정한 index.js 파일 내에 웹팩이 알아볼 수 없는 파일 형식자인 css가 포함되어서 이를 해석할 수 없다는 에러를 발생시켰다.
+
+위와 같이 원래 목적인 js를 변환하는 것이 아니라면 loader를 통해 같이 빌드할 수 있는 여건을 만들어 줘야 한다
+
+```js
+📁 webpack.config.js
+
+var path = require("path");
+
+module.exports = {
+  mode: "none", // production, development, none >> 배포 시에는 production으로 설정해야 한다
+  entry: "./index.js",
+  output: {
+    filename: "bundle.js",
+    path: path.resolve(__dirname, "dist"),
+  },
+  module: {
+    rules: [
+      {
+        // 'test'는 확장자를 의미한다
+        test: /\.css$/,
+        // 'use'는 해당 파일들을 어떤 방향으로 로딩하는지 설정해주는 것이다
+
+        // css-loader는 웹팩 안에 css 파일을 같이 번들링할 수 있도록 만드는 용도이다
+        // style-loader는 해당 css를 html 파일 내에 인라인 코드로 실제 스타일에 적용하는 용도로 사용된다
+
+        // 🔥 순서(오른쪽 to 왼쪽으로 적용) 또한 영향이 있으니, 먼저 적용되야 하는 로더를 오른쪽에 작성해야 한다
+        use: ["style-loader", "css-loader"],
+      },
+      // 만든 바벨 로더 예시
+      // {
+      //   test: /\.js$/, test > 확장자
+      //   use: ["babel-loader"], use > 사용할 라이브러리
+      // },
+    ],
+  },
+};
+```
+
+### plugin
+
 ## 웹팩 데브 서버
